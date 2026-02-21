@@ -1,0 +1,1 @@
+pio run -e esp32c3dev -t upload
