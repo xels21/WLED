@@ -92,11 +92,13 @@ void handleE131Packet(e131_packet_t* p, IPAddress clientIP, byte protocol){
     return;
   }
 
+  int8_t artnetOffset = (protocol == P_ARTNET) ? -1 : 0;
+
   #ifdef WLED_ENABLE_DMX
   // does not act on out-of-order packets yet
   if (e131ProxyUniverse > 0 && uni == e131ProxyUniverse) {
     for (uint16_t i = 1; i <= dmxChannels; i++)
-      dmx.write(i, e131_data[i]);
+      dmx.write(i, e131_data[i + artnetOffset]);
     dmx.update();
   }
   #endif
@@ -129,8 +131,8 @@ void handleE131Packet(e131_packet_t* p, IPAddress clientIP, byte protocol){
   }
 
   // DMX data in Art-Net packet starts at index 0, for E1.31 at index 1
-  if (protocol == P_ARTNET && dataOffset > 0) {
-    dataOffset--;
+  if (dataOffset > 0) {
+    dataOffset += artnetOffset;
   }
 
   switch (DMXMode) {
